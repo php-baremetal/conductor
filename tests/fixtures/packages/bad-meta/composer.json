@@ -1,0 +1,2 @@
+{ "name": "acme/bad-meta", "version": "1.0.0", "type": "bm-ext",
+  "extra": { "baremetal": ["x"] } }

@@ -5,41 +5,49 @@ declare(strict_types=1);
 namespace PhpBaremetal\Conductor;
 
 use Composer\Command\BaseCommand;
+use PhpBaremetal\Spec\Manifest\Manifest;
+use PhpBaremetal\Spec\Manifest\ManifestValidator;
+use PhpBaremetal\Spec\SpecException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\ConsoleOutputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/** `composer conductor:generate` -- rebuild baremetal.gen.json (--dry-run, --strict). */
 final class GenerateCommand extends BaseCommand
 {
     protected function configure(): void
     {
         $this->setName('conductor:generate')
-            ->setDescription('Generate baremetal.gen.json from installed bm-* packages and the project config')
+            ->setDescription('Write ' . Manifest::PATH . ' from the installed bm-* packages and extra.baremetal')
             ->addOption('dry-run', null, InputOption::VALUE_NONE, 'Print the manifest instead of writing it')
-            ->addOption('strict', null, InputOption::VALUE_NONE, 'Exit non-zero if the graph has problems');
+            ->addOption('strict', null, InputOption::VALUE_NONE, 'Fail when the package graph has problems');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $root     = getcwd() ?: '.';
-        $gen      = new Generator($this->requireComposer());
-        $manifest = $gen->build($root);
-        $problems = $gen->validate($manifest);
+        $composer = $this->requireComposer();
+        $projectDir = Plugin::projectDir();
 
-        foreach ($problems as $problem) {
-            $output->writeln('<comment>! ' . $problem . '</comment>');
+        try {
+            $manifest = (new Generator())->build($composer, $projectDir);
+        } catch (SpecException $e) {
+            $output->writeln('<error>' . $e->getMessage() . '</error>');
+            return 1;
         }
 
-        $json = json_encode($manifest, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n";
+        $problems = (new ManifestValidator())->validate($manifest);
+        $errors = $output instanceof ConsoleOutputInterface ? $output->getErrorOutput() : $output;
+        foreach ($problems as $problem) {
+            $errors->writeln('<comment>! ' . $problem . '</comment>');
+        }
 
         if ($input->getOption('dry-run')) {
-            $output->write($json);
+            $output->write($manifest->toJson());
         } else {
-            file_put_contents($root . '/' . Generator::MANIFEST, $json);
-            $output->writeln('<info>wrote ' . Generator::MANIFEST . '</info>');
+            (new ManifestWriter())->write($projectDir, $manifest);
+            $output->writeln('<info>wrote ' . Manifest::PATH . '</info>');
         }
 
-        return ($problems !== [] && $input->getOption('strict')) ? 1 : 0;
+        return $problems !== [] && $input->getOption('strict') ? 1 : 0;
     }
 }

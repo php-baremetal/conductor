@@ -1,0 +1,3 @@
+{ "name": "php-baremetal/stm32-demo-hal", "version": "1.0.0", "type": "bm-hal",
+  "provide": { "php-baremetal/demo-hal": "1.0.0" },
+  "extra": { "baremetal": { "kind": "hal", "hal": "demo", "arch": "stm32", "platform": "stm32", "src-dir": "src" } } }

@@ -1,0 +1,17 @@
+# Composer: a library does not commit its dependencies or a lock file
+/vendor/
+/composer.lock
+
+# PHPUnit
+/.phpunit.cache/
+/.phpunit.result.cache
+
+# build output and local files
+/build/
+/.phpbm/
+/node_modules/
+*.zip
+.env
+.idea/
+.vscode/
+.DS_Store

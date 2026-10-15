@@ -1,0 +1,2 @@
+{ "name": "php-baremetal/esp32-wrong-hal", "version": "1.0.0", "type": "bm-hal",
+  "extra": { "baremetal": { "platform": "stm32" } } }

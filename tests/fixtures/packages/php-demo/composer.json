@@ -1,0 +1,2 @@
+{ "name": "php-baremetal/php-demo", "version": "1.0.0", "type": "bm-php-ext",
+  "extra": { "baremetal": { "php-ext": "demo_ext" } } }
