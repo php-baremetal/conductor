@@ -16,7 +16,7 @@ It needs PHP 8.4 or later and Composer 2 (`composer-plugin-api ^2.0`), and depen
 - **Binds the HAL for the project's platform.** A neutral extension requires a virtual such as
   `php-baremetal/i2c-hal`. When `extra.baremetal.sdk` is set, conductor walks the project's requirements, finds
   each `php-baremetal/<x>-hal` virtual, and adds the concrete provider for the SDK's platform
-  (`php-baremetal/esp32-<x>-hal` for `esp32@^1.0`) to the project's requirements, so you never require a HAL
+  (`php-baremetal/esp32-<x>-hal` for `esp32@^2.0`) to the project's requirements, so you never require a HAL
   yourself. It warns when the platform has no provider, and for the retired `<x>-transport` requirements.
 - **Writes the build manifest.** After every `composer install` and `composer update` it writes
   `.phpbm/manifest.json` (schema 1): the project's settings from `extra.baremetal`, and every installed `bm-*`
@@ -57,7 +57,7 @@ Composer 2 does not run a plugin that is not allowed.
   },
   "extra": {
     "baremetal": {
-      "sdk": "esp32@^1.0",
+      "sdk": "esp32@^2.0",
       "board": "waveshare-esp32-s3-touch-lcd-1.85b",
       "runtime": "init-loop",
       "storage": "embedded"
@@ -75,7 +75,7 @@ Read from `extra.baremetal`, plus the PHP version from `config.platform.php`, wh
 
 | Key | Meaning |
 | --- | --- |
-| `sdk` | Required. `<name>@<constraint>`, for example `esp32@^1.0`. The name is the platform. |
+| `sdk` | Required. `<name>@<constraint>`, for example `esp32@^2.0`. The name is the platform. |
 | `board` | Required. A board id of the SDK. |
 | `runtime` | Required. `init-loop`, `event-driven` or `web-server`. |
 | `storage` | Required. `embedded` or `microsd`. |
