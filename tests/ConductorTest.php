@@ -24,7 +24,7 @@ final class ConductorTest extends TestCase
             'repositories' => [
                 ['packagist.org' => false],
                 ['type' => 'path', 'url' => $root, 'options' => ['versions' => ['php-baremetal/conductor' => '1.0.0']]],
-                ['type' => 'path', 'url' => $root . '/vendor/php-baremetal/spec', 'options' => ['versions' => ['php-baremetal/spec' => '1.0.0']]],
+                ['type' => 'path', 'url' => $root . '/vendor/php-baremetal/spec', 'options' => ['versions' => ['php-baremetal/spec' => '1.0.2']]],
             ],
             'require' => ['php-baremetal/conductor' => '^1.0'],
             'config' => ['allow-plugins' => ['php-baremetal/conductor' => true]],
@@ -221,5 +221,39 @@ final class ConductorTest extends TestCase
         [$code, $out] = self::composer($dir, ['install']);
         self::assertSame(0, $code, $out);
         self::assertStringContainsString("php-baremetal/esp32-wrong-hal: 'platform' is 'stm32' but the project's sdk is 'esp32'", $out);
+    }
+
+    public function test_fonts_reach_the_manifest(): void
+    {
+        $dir = $this->project(['php-baremetal/ext-demo' => '^1.0', 'php-baremetal/font-demo' => '^1.0'], self::BAREMETAL + [
+            'fonts' => ['bake' => [['name' => 'inter-16', 'source' => 'assets/Inter.ttf', 'size' => 16]]],
+        ]);
+
+        [$code, $out] = self::composer($dir, ['install']);
+        self::assertSame(0, $code, $out);
+
+        $raw = json_decode((string) file_get_contents($dir . '/' . Manifest::PATH), true);
+        self::assertSame('inter-16', $raw['project']['fonts']['bake'][0]['name']);
+        self::assertSame('assets/Inter.ttf', $raw['project']['fonts']['bake'][0]['source']);
+        $package = null;
+        foreach ($raw['packages'] as $p) {
+            if ($p['name'] === 'php-baremetal/font-demo') {
+                $package = $p;
+            }
+        }
+        self::assertNotNull($package, $out);
+        self::assertSame(['fonts' => ['demo-8' => 'fonts/demo-8.h']], $package['baremetal']);
+    }
+
+    public function test_invalid_fonts_default_reports_and_removes_stale_manifest(): void
+    {
+        $dir = $this->project(['php-baremetal/ext-demo' => '^1.0'], self::BAREMETAL + ['fonts' => ['default' => 'yes']]);
+        mkdir($dir . '/.phpbm');
+        file_put_contents($dir . '/' . Manifest::PATH, '{}');
+
+        [$code, $out] = self::composer($dir, ['install']);
+        self::assertSame(0, $code, $out);
+        self::assertStringContainsString("extra.baremetal: 'fonts.default' must be true or false", $out);
+        self::assertFileDoesNotExist($dir . '/' . Manifest::PATH);
     }
 }

@@ -1,0 +1,1 @@
+{ "name": "php-baremetal/font-demo", "version": "1.0.0", "type": "bm-lib", "extra": { "baremetal": { "fonts": { "demo-8": "fonts/demo-8.h" } } } }
