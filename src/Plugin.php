@@ -72,6 +72,18 @@ final class Plugin implements PluginInterface, EventSubscriberInterface, Capable
         }
         $writer->write($projectDir, $manifest);
         $this->io->write('<info>php-baremetal: wrote ' . Manifest::PATH . '</info>');
+
+        try {
+            $stubs = new IdeStubs();
+            foreach ($stubs->write($projectDir, $manifest) as $warning) {
+                $this->io->writeError('<warning>' . $warning . '</warning>');
+            }
+            if (is_file($projectDir . '/' . IdeStubs::DIR . '/README.md')) {
+                $this->io->write('<info>php-baremetal: wrote ' . IdeStubs::DIR . '/ (' . $stubs->written() . ' files)</info>');
+            }
+        } catch (\Throwable $e) {
+            $this->io->writeError('<warning>php-baremetal: cannot write ' . IdeStubs::DIR . '/: ' . $e->getMessage() . '</warning>');
+        }
     }
 
     public static function projectDir(): string

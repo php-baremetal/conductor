@@ -24,7 +24,7 @@ final class ConductorTest extends TestCase
             'repositories' => [
                 ['packagist.org' => false],
                 ['type' => 'path', 'url' => $root, 'options' => ['versions' => ['php-baremetal/conductor' => '1.0.0']]],
-                ['type' => 'path', 'url' => $root . '/vendor/php-baremetal/spec', 'options' => ['versions' => ['php-baremetal/spec' => '1.0.2']]],
+                ['type' => 'path', 'url' => $root . '/vendor/php-baremetal/spec', 'options' => ['versions' => ['php-baremetal/spec' => '1.1.0']]],
             ],
             'require' => ['php-baremetal/conductor' => '^1.0'],
             'config' => ['allow-plugins' => ['php-baremetal/conductor' => true]],

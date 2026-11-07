@@ -24,6 +24,16 @@ It needs PHP 8.4 or later and Composer 2 (`composer-plugin-api ^2.0`), and depen
   Problems it can detect (an extension without a `module`, two extensions with the same module, a HAL for another
   platform, a `bm-php-ext` with extra keys) are printed as warnings; an invalid configuration prints an error and
   removes a stale manifest.
+- **Rebuilds the IDE stubs.** Right after the manifest, it rebuilds `vendor/php-baremetal/ide-stubs/`: a `README.md`
+  and one `<package>.php` per package, copied from the files the package lists in `extra.baremetal.ide-stubs`
+  (`ext-wifi.php` for `php-baremetal/ext-wifi`, `acme--ext-foo.php` for another vendor; a second stub of the same
+  package gets `.2`, as in `ext-foo.2.php`). They are plain PHP declarations of the functions and classes the packages add, so PhpStorm and
+  Intelephense index them without configuration (`vendor/` is indexed by default). They are never loaded at
+  runtime, and excluding `.phpbm` from the IDE is safe. A declared stub that does not exist is printed as a warning.
+  Conductor only deletes the `*.php` files and `README.md` it wrote there. A filesystem failure while writing them is
+  a warning and never fails the install. With an older conductor installed globally, the first install of a project
+  writes no stubs (Composer runs the global plugin of the same name); `composer global update
+  php-baremetal/conductor`, or a second `composer install`, fixes it.
 
 All of it applies only to projects whose `composer.json` has an `extra.baremetal` object. Any other project installs
 as usual.
